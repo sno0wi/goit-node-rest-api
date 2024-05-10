@@ -53,12 +53,7 @@ export const updateContact = async (req, res) => {
       res.status(400).json({ message: "Body must have at least one field" });
     }
 
-    const updatedContact = await contactsService.updateContact(
-      id,
-      name,
-      email,
-      phone
-    );
+    await contactsService.updateContact(id, name, email, phone);
     const newContact = await contactsService.getContactById(id);
     res.status(200).json(newContact);
   } catch (error) {
