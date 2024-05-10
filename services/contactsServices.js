@@ -58,9 +58,33 @@ async function addContact(name, email, phone) {
   return newContact;
 }
 
+async function updateContact(contactId, name, email, phone) {
+  const updatedContact = await getContactById(contactId);
+  if (updatedContact) {
+    const contacts = await listContacts();
+
+    const newContacts = contacts.map((contact) => {
+      if (contact.id !== contactId) {
+        return { ...contact };
+      }
+      return {
+        ...contact,
+        name: name !== undefined ? name : contact.name,
+        email: email !== undefined ? email : contact.email,
+        phone: phone !== undefined ? phone : contact.phone,
+      };
+    });
+    await fs.writeFile(contactsPath, JSON.stringify(newContacts, null, 2));
+    return updatedContact;
+  } else {
+    return null;
+  }
+}
+
 export default {
   listContacts,
   getContactById,
   removeContact,
   addContact,
+  updateContact,
 };
