@@ -53,15 +53,15 @@ export const updateContact = async (req, res) => {
     const { id } = req.params;
     const contact = await contactsService.getContactById(id);
     if (contact) {
-      const { name, email, phone } = req.body;
+      const { name, email, phone, favorite } = req.body;
 
-      if (!name && !email && !phone) {
+      if (!name && !email && !phone && !favorite) {
         return res
           .status(400)
           .json({ message: "Body must have at least one field" });
       }
 
-      await contactsService.updateContact(id, name, email, phone);
+      await contactsService.updateContact(id, favorite, name, email, phone);
       const newContact = await contactsService.getContactById(id);
       res.status(200).json(newContact);
     } else {
@@ -69,5 +69,23 @@ export const updateContact = async (req, res) => {
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+export const updateContactFavorite = async (req, res) => {
+  const { id } = req.params;
+  const { favorite } = req.body;
+
+  try {
+    const updatedContact = await contactsService.updateStatusContact(
+      id,
+      favorite
+    );
+    if (updatedContact === null) {
+      return res.status(404).json({ message: "Not found" });
+    }
+    return res.status(200).json(updatedContact);
+  } catch (error) {
+    res.status(404).json({ message: "Not found" });
   }
 };
