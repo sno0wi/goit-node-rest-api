@@ -5,7 +5,7 @@ async function listContacts() {
     const data = await Contact.find();
     return data;
   } catch (error) {
-    next(error);
+    throw new Error(error);
   }
 }
 
@@ -17,7 +17,7 @@ async function getContactById(contactId) {
     }
     return data;
   } catch (error) {
-    next(error);
+    throw new Error(error);
   }
 }
 
@@ -30,7 +30,7 @@ async function removeContact(contactId) {
     }
     return data;
   } catch (error) {
-    next(error);
+    throw new Error(error);
   }
 }
 
@@ -46,7 +46,7 @@ async function addContact(name, email, phone, favorite = false) {
 
     return data;
   } catch (error) {
-    next(error);
+    throw new Error(error);
   }
 }
 
@@ -64,13 +64,15 @@ async function updateContact(contactId, favorite, name, email, phone) {
   };
 
   try {
-    const result = Contact.findByIdAndUpdate(contactId, newData, { new: true });
+    const result = await Contact.findByIdAndUpdate(contactId, newData, {
+      new: true,
+    });
     if (result === null) {
       return null;
     }
     return result;
   } catch (error) {
-    next(error);
+    throw new Error(error);
   }
 }
 
@@ -82,7 +84,7 @@ async function updateStatusContact(contactId, favorite) {
     }
     return result;
   } catch (error) {
-    next(error);
+    throw new Error(error);
   }
 }
 
