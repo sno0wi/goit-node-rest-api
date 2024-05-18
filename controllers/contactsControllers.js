@@ -25,7 +25,7 @@ export const getOneContact = async (req, res) => {
       res.status(404).json({ message: "Not found" });
     }
   } catch (error) {
-    res.status(404).json({ message: "Not found" });
+    next(error);
   }
 };
 
@@ -44,7 +44,7 @@ export const deleteContact = async (req, res) => {
       res.status(404).json({ message: "Contact not found" });
     }
   } catch (error) {
-    res.status(404).json({ message: "Not found" });
+    next(error);
   }
 };
 
@@ -105,6 +105,6 @@ export const updateContactFavorite = async (req, res) => {
     }
     return res.status(200).json(updatedContact);
   } catch (error) {
-    res.status(404).json({ message: "Not found" });
+    next(error);
   }
 };
