@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const contactsSchema = new mongoose.Schema(
+const contactSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -22,4 +22,4 @@ const contactsSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Contact", contactsSchema);
+export default mongoose.model("Contact", contactSchema);
