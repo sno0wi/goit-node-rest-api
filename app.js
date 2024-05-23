@@ -7,6 +7,7 @@ import cors from "cors";
 import contactsRouter from "./routes/contactsRouter.js";
 
 import "./db.js";
+import authRouter from "./routes/authRouter.js";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/contacts", contactsRouter);
+app.use("/api/auth", authRouter);
 
 app.use((_, res) => {
   res.status(404).json({ message: "Route not found" });
