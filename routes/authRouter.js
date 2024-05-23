@@ -13,6 +13,11 @@ authRouter.post(
   validateBody(createUsersSchema),
   AuthController.register
 );
-authRouter.post("/login", jsonParser, AuthController.login);
+authRouter.post(
+  "/login",
+  jsonParser,
+  validateBody(createUsersSchema),
+  AuthController.login
+);
 
 export default authRouter;
