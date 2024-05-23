@@ -29,7 +29,7 @@ export const getOneContact = async (req, res) => {
   }
 };
 
-export const deleteContact = async (req, res) => {
+export const deleteContact = async (req, res, next) => {
   const { id } = req.params;
 
   if (!isValidObjectId(id)) {
@@ -87,7 +87,7 @@ export const updateContact = async (req, res) => {
   }
 };
 
-export const updateContactFavorite = async (req, res) => {
+export const updateContactFavorite = async (req, res, next) => {
   const { id } = req.params;
   const { favorite } = req.body;
 
