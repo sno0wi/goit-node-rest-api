@@ -6,7 +6,7 @@ function auth(req, res, next) {
   const authorizationHeader = req.headers.authorization;
 
   if (typeof authorizationHeader !== "string") {
-    return res.status(401).send({ message: "Invalid token" });
+    return res.status(401).send({ message: "Not authorized" });
   }
 
   const [bearer, token] = authorizationHeader.split(" ", 2);
