@@ -10,7 +10,7 @@ async function register(req, res, next) {
     if (user !== null) {
       return res.status(409).send({ message: "Email in use" });
     }
-    const passwordHash = await bycrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 10);
     await User.create({ name, email, password: passwordHash });
     res.status(201).send({ message: "Registration successfully!" });
   } catch (error) {
@@ -54,4 +54,32 @@ async function login(req, res, next) {
   }
 }
 
-export default { register, login };
+async function logout(req, res, next) {
+  try {
+    const findUser = await User.findById(req.user.id);
+    if (findUser === null) {
+      return res.status(401).send({ message: "Not authorized" });
+    }
+    await User.findByIdAndUpdate(req.user.id, { token: null }, { new: true });
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function getCurrentUser(req, res, next) {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(401).send({ message: "Not authorized" });
+    }
+    res.status(200).send({
+      email: user.email,
+      subscription: user.subscription,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export default { register, login, logout, getCurrentUser };

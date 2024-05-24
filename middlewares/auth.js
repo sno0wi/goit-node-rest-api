@@ -21,17 +21,13 @@ function auth(req, res, next) {
     }
 
     try {
-      const user = await User.findById(decode.id);
+      const user = await User.findById(decoded.id);
 
-      if (user === null) {
+      if (!user || user.token !== token) {
         return res.status(401).send({ message: "Invalid token" });
       }
 
-      if (user.token !== token) {
-        return res.status(401).send({ message: "Invalid token" });
-      }
-
-      req.user = { id: decode.id, name: decode.name };
+      req.user = { id: decoded.id, name: decoded.name };
 
       next();
     } catch (error) {
