@@ -16,20 +16,33 @@ import {
 
 import validateBody from "../helpers/validateBody.js";
 
+import authMiddleware from "../middlewares/auth.js";
+
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", getAllContacts);
+contactsRouter.get("/", authMiddleware, getAllContacts);
 
-contactsRouter.get("/:id", getOneContact);
+contactsRouter.get("/:id", authMiddleware, getOneContact);
 
-contactsRouter.delete("/:id", deleteContact);
+contactsRouter.delete("/:id", authMiddleware, deleteContact);
 
-contactsRouter.post("/", validateBody(createContactSchema), createContact);
+contactsRouter.post(
+  "/",
+  authMiddleware,
+  validateBody(createContactSchema),
+  createContact
+);
 
-contactsRouter.put("/:id", validateBody(updateContactSchema), updateContact);
+contactsRouter.put(
+  "/:id",
+  authMiddleware,
+  validateBody(updateContactSchema),
+  updateContact
+);
 
 contactsRouter.patch(
   "/:id/favorite",
+  authMiddleware,
   validateBody(updateContactFavoriteSchema),
   updateContactFavorite
 );

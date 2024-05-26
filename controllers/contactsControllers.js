@@ -3,7 +3,8 @@ import contactsService from "../services/contactsServices.js";
 
 export const getAllContacts = async (req, res) => {
   try {
-    const contacts = await contactsService.listContacts();
+    const filter = { owner: req.user.id };
+    const contacts = await contactsService.listContacts(filter);
     res.status(200).json(contacts);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -18,7 +19,7 @@ export const getOneContact = async (req, res) => {
   }
 
   try {
-    const contact = await contactsService.getContactById(id);
+    const contact = await contactsService.getContactById(id, req.user.id);
     if (contact) {
       res.status(200).json(contact);
     } else {
@@ -37,7 +38,7 @@ export const deleteContact = async (req, res, next) => {
   }
 
   try {
-    const deletedContact = await contactsService.removeContact(id);
+    const deletedContact = await contactsService.removeContact(id, req.user.id);
     if (deletedContact) {
       res.status(200).json(deletedContact);
     } else {
@@ -51,7 +52,12 @@ export const deleteContact = async (req, res, next) => {
 export const createContact = async (req, res) => {
   try {
     const { name, email, phone } = req.body;
-    const createdContact = await contactsService.addContact(name, email, phone);
+    const createdContact = await contactsService.addContact(
+      req.user.id,
+      name,
+      email,
+      phone
+    );
     res.status(201).json(createdContact);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -76,7 +82,14 @@ export const updateContact = async (req, res) => {
           .json({ message: "Body must have at least one field" });
       }
 
-      await contactsService.updateContact(id, favorite, name, email, phone);
+      await contactsService.updateContact(
+        id,
+        req.user.id,
+        favorite,
+        name,
+        email,
+        phone
+      );
       const newContact = await contactsService.getContactById(id);
       res.status(200).json(newContact);
     } else {
@@ -98,6 +111,7 @@ export const updateContactFavorite = async (req, res, next) => {
   try {
     const updatedContact = await contactsService.updateStatusContact(
       id,
+      req.user.id,
       favorite
     );
     if (updatedContact === null) {

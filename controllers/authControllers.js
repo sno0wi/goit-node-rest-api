@@ -5,14 +5,19 @@ import User from "../models/user.js";
 
 async function register(req, res, next) {
   try {
-    const { name, email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (user !== null) {
+    const { email, password } = req.body;
+    const foundUser = await User.findOne({ email });
+    if (foundUser !== null) {
       return res.status(409).send({ message: "Email in use" });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    await User.create({ name, email, password: passwordHash });
-    res.status(201).send({ message: "Registration successfully!" });
+    const createdUser = await User.create({ email, password: passwordHash });
+    res.status(201).send({
+      user: {
+        email: createdUser.email,
+        subscription: createdUser.subscription,
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -46,9 +51,19 @@ async function login(req, res, next) {
       { expiresIn: "1h" }
     );
 
-    await User.findByIdAndUpdate(user._id, { token }, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { token },
+      { new: true }
+    );
 
-    res.send({ token });
+    res.status(200).send({
+      token,
+      user: {
+        email: updatedUser.email,
+        password: updatedUser.password,
+      },
+    });
   } catch (error) {
     next(error);
   }

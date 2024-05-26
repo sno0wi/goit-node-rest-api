@@ -1,17 +1,17 @@
 import Contact from "../models/contact.js";
 
-async function listContacts() {
+async function listContacts(filter) {
   try {
-    const data = await Contact.find();
+    const data = await Contact.find(filter);
     return data;
   } catch (error) {
     throw new Error(error);
   }
 }
 
-async function getContactById(contactId) {
+async function getContactById(contactId, ownerId) {
   try {
-    const data = await Contact.findById(contactId);
+    const data = await Contact.findOne({ _id: contactId, owner: ownerId });
     if (data === null) {
       return null;
     }
@@ -21,9 +21,12 @@ async function getContactById(contactId) {
   }
 }
 
-async function removeContact(contactId) {
+async function removeContact(contactId, ownerId) {
   try {
-    const data = await Contact.findByIdAndDelete(contactId);
+    const data = await Contact.findByIdAndDelete({
+      _id: contactId,
+      owner: ownerId,
+    });
 
     if (data === null) {
       return null;
@@ -34,12 +37,13 @@ async function removeContact(contactId) {
   }
 }
 
-async function addContact(name, email, phone, favorite = false) {
+async function addContact(ownerId, name, email, phone, favorite = false) {
   const newContact = {
     name: name,
     email: email,
     phone: phone,
     favorite: favorite,
+    owner: ownerId,
   };
   try {
     const data = await Contact.create(newContact);
@@ -50,8 +54,11 @@ async function addContact(name, email, phone, favorite = false) {
   }
 }
 
-async function updateContact(contactId, favorite, name, email, phone) {
-  const updatableContact = await Contact.findById(contactId);
+async function updateContact(contactId, ownerId, favorite, name, email, phone) {
+  const updatableContact = await Contact.findById({
+    _id: contactId,
+    owner: ownerId,
+  });
   if (updatableContact === null) {
     return null;
   }
@@ -76,9 +83,9 @@ async function updateContact(contactId, favorite, name, email, phone) {
   }
 }
 
-async function updateStatusContact(contactId, favorite) {
+async function updateStatusContact(contactId, ownerId, favorite) {
   try {
-    const result = updateContact(contactId, favorite);
+    const result = updateContact(contactId, ownerId, favorite);
     if (result === null) {
       return null;
     }
