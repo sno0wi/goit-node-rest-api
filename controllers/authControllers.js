@@ -1,7 +1,11 @@
+import * as fs from "node:fs/promises";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import gravatar from "gravatar";
+import path from "node:path";
 
 import User from "../models/user.js";
+import { updateContact } from "./contactsControllers.js";
 
 async function register(req, res, next) {
   try {
@@ -12,10 +16,12 @@ async function register(req, res, next) {
     }
     const passwordHash = await bcrypt.hash(password, 10);
     const createdUser = await User.create({ email, password: passwordHash });
+    const avatarURL = gravatar.url(email, { s: "200", r: "pg", d: "mm" });
     res.status(201).send({
       user: {
         email: createdUser.email,
         subscription: createdUser.subscription,
+        avatarURL,
       },
     });
   } catch (error) {
@@ -97,4 +103,27 @@ async function getCurrentUser(req, res, next) {
   }
 }
 
-export default { register, login, logout, getCurrentUser };
+async function changeAvatar(req, res, next) {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(401).send({ message: "Not authorized" });
+    }
+
+    const newPath = path.resolve("public", "avatars", req.file.filename);
+
+    await fs.rename(req.file.path, newPath);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatarURL: req.file.filename },
+      { new: true }
+    );
+
+    res.status(200).send(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export default { register, login, logout, getCurrentUser, changeAvatar };
