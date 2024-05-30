@@ -5,6 +5,7 @@ import validateBody from "../helpers/validateBody.js";
 import { createUsersSchema } from "../schemas/usersSchemas.js";
 import authMiddleware from "../middlewares/auth.js";
 import uploadMiddleware from "../middlewares/upload.js";
+import resizeImage from "../middlewares/resizeImage.js";
 
 const authRouter = express.Router();
 const jsonParser = express.json();
@@ -29,6 +30,7 @@ authRouter.patch(
   "/avatars",
   authMiddleware,
   uploadMiddleware.single("avatarURL"),
+  resizeImage,
   AuthController.changeAvatar
 );
 

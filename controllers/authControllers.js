@@ -110,17 +110,25 @@ async function changeAvatar(req, res, next) {
       return res.status(401).send({ message: "Not authorized" });
     }
 
-    const newPath = path.resolve("public", "avatars", req.file.filename);
+    if (!req.file || !req.file.filename) {
+      return res.status(400).send({ message: "No file uploaded" });
+    }
 
-    await fs.rename(req.file.path, newPath);
+    const newPath = path.resolve("public", "avatars", req.file.filename);
+    try {
+      await fs.rename(req.file.path, newPath);
+    } catch (error) {
+      await fs.unlink(req.file.path);
+      next(error);
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
-      { avatarURL: req.file.filename },
+      { avatarURL: `/avatars/${req.file.filename}` },
       { new: true }
     );
 
-    res.status(200).send(updatedUser);
+    res.status(200).send({ avatarURL: updatedUser.avatarURL });
   } catch (error) {
     next(error);
   }
