@@ -1,6 +1,4 @@
 import path from "node:path";
-import crypto from "node:crypto";
-import Jimp from "jimp";
 import multer from "multer";
 
 const storage = multer.diskStorage({
@@ -10,7 +8,7 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const extname = path.extname(file.originalname);
     const basename = path.basename(file.originalname, extname);
-    const suffix = crypto.randomUUID();
+    const suffix = req.user.id;
 
     const filename = `${basename}--${suffix}${extname}`;
 
