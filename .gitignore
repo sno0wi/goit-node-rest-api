@@ -132,3 +132,5 @@ dist
 #avatars
 public/avatars/*
 !public/avatars/.gitkeep
+tmp/*
+!tmp/.gitkeep

@@ -5,7 +5,6 @@ import gravatar from "gravatar";
 import path from "node:path";
 
 import User from "../models/user.js";
-import { updateContact } from "./contactsControllers.js";
 
 async function register(req, res, next) {
   try {
@@ -15,8 +14,13 @@ async function register(req, res, next) {
       return res.status(409).send({ message: "Email in use" });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const createdUser = await User.create({ email, password: passwordHash });
     const avatarURL = gravatar.url(email, { s: "200", r: "pg", d: "mm" });
+    const createdUser = await User.create({
+      email,
+      password: passwordHash,
+      avatarURL,
+    });
+
     res.status(201).send({
       user: {
         email: createdUser.email,
