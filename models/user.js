@@ -23,6 +23,14 @@ const userSchema = new mongoose.Schema(
     avatarURL: {
       type: String,
     },
+    verifield: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      default: null,
+    },
   },
   {
     versionKey: false,
