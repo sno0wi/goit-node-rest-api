@@ -1,9 +1,11 @@
 import * as fs from "node:fs/promises";
 import bcrypt from "bcrypt";
+import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
 import path from "node:path";
 
+import mail from "../mail.js";
 import User from "../models/user.js";
 
 async function register(req, res, next) {
@@ -14,11 +16,22 @@ async function register(req, res, next) {
       return res.status(409).send({ message: "Email in use" });
     }
     const passwordHash = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomUUID();
     const avatarURL = gravatar.url(email, { s: "200", r: "pg", d: "mm" });
+
+    mail.sendMail({
+      to: email,
+      from: "sno0wi20@gmail.com",
+      subject: "Welcome to contact book",
+      html: `To confirm you email please click on <a href="http://localhost:8080/api/users/verify/${verificationToken}">link</a>`,
+      text: `To confirm you email please open the link http://localhost:8080/api/users/verify/${verificationToken}`,
+    });
+
     const createdUser = await User.create({
       email,
       password: passwordHash,
       avatarURL,
+      verificationToken,
     });
 
     res.status(201).send({
@@ -137,5 +150,9 @@ async function changeAvatar(req, res, next) {
     next(error);
   }
 }
+
+async function verifyEmail(req, res, next) {}
+
+async function sendVerificationEmail(req, res, next) {}
 
 export default { register, login, logout, getCurrentUser, changeAvatar };
