@@ -13,3 +13,7 @@ export const createUsersSchema = Joi.object({
     "any.required": "Password field is required",
   }),
 });
+
+export const verificationEmailSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
