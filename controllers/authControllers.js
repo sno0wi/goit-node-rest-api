@@ -23,8 +23,8 @@ async function register(req, res, next) {
       to: email,
       from: "sno0wi20@gmail.com",
       subject: "Welcome to contact book",
-      html: `To confirm you email please click on <a href="http://localhost:8080/api/users/verify/${verificationToken}">link</a>`,
-      text: `To confirm you email please open the link http://localhost:8080/api/users/verify/${verificationToken}`,
+      html: `To confirm you email please click on <a href="http://localhost:8080/users/verify/${verificationToken}">link</a>`,
+      text: `To confirm you email please open the link http://localhost:8080/users/verify/${verificationToken}`,
     });
 
     const createdUser = await User.create({
@@ -57,6 +57,12 @@ async function login(req, res, next) {
       return res
         .status(401)
         .send({ message: "Email or password is incorrect" });
+    }
+
+    if (!user.verify) {
+      return res
+        .status(403)
+        .send({ message: "Please verify your email to login" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -151,8 +157,62 @@ async function changeAvatar(req, res, next) {
   }
 }
 
-async function verifyEmail(req, res, next) {}
+async function verifyEmail(req, res, next) {
+  try {
+    const { verificationToken } = req.params;
+    const user = await User.findOne({ verificationToken: verificationToken });
+    if (user === null) {
+      return res.status(404).send({ message: "User not found" });
+    }
 
-async function sendVerificationEmail(req, res, next) {}
+    await User.findByIdAndUpdate(user._id, {
+      verificationToken: null,
+      verify: true,
+    });
 
-export default { register, login, logout, getCurrentUser, changeAvatar };
+    res.status(200).send({ message: "Email confirm successfully!" });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function sendVerificationEmail(req, res, next) {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (user == null)
+      return res.status(404).send({ message: "User not found" });
+    if (user.verify === true)
+      return res
+        .status(400)
+        .send({ message: "Verification has already been passed" });
+
+    mail.sendMail({
+      to: email,
+      from: "no-reply@gmail.com",
+      subject: 'Reconfirmation of mail | "localhost:3000 "',
+      html: `
+        <h1>Welcome to the our site "localhost:3000"</h1>
+        <p>Please click on the link below to verify your email</p>
+        <a href="http://localhost:3000/users/verify/${user.verificationToken}">
+          Link</a>`,
+      text: `Welcome to the our site "localhost:3000"
+        Please click on the link below to verify your email
+        http://localhost:3000/users/verify/${user.verificationToken}`,
+    });
+
+    res.status(200).send({ message: "Verification email sent" });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export default {
+  register,
+  login,
+  logout,
+  getCurrentUser,
+  changeAvatar,
+  verifyEmail,
+  sendVerificationEmail,
+};
